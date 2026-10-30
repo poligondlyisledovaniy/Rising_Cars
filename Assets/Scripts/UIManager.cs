@@ -1,38 +1,39 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 
+/// <summary>Таймер и спидометр на экране.</summary>
 public class UIManager : MonoBehaviour
 {
     public Transform player;
     public TextMeshProUGUI speedText;
     public TextMeshProUGUI timeText;
 
-    private float timer = 0f;
-    private Vector3 lastPos;
-    private bool finished = false;
+    private CarController car;
 
-    void Start()
+    private void Start()
     {
-        if (player != null) lastPos = player.position;
-    }
-
-    void Update()
-    {
-        if (finished) return;
-
-        timer += Time.deltaTime;
-        if (timeText != null) timeText.text = $"�����: {timer:F1} �";
-
-        if (speedText != null && player != null)
+        if (player == null)
         {
-            float speedMs = Vector3.Distance(player.position, lastPos) / Time.deltaTime;
-            speedText.text = $"��������: {speedMs * 3.6f:F0} ��/�";
-            lastPos = player.position;
+            GameObject found = GameObject.FindGameObjectWithTag("Player");
+            if (found != null) player = found.transform;
         }
+
+        if (player != null) car = player.GetComponent<CarController>();
     }
 
-    public void StopTimer()
+    private void Update()
     {
-        finished = true;
+        if (timeText != null)
+        {
+            GameManager gm = GameManager.Instance;
+            float time = gm != null ? gm.RaceTime : 0f;
+            timeText.text = $"Время: {time:F1} с";
+        }
+
+        if (speedText != null)
+        {
+            float kmh = car != null ? car.SpeedKmh : 0f;
+            speedText.text = $"Скорость: {kmh:F0} км/ч";
+        }
     }
 }
